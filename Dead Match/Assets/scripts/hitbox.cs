@@ -1,8 +1,9 @@
 using UnityEngine;
+using Unity.Collections;
 
 public class hitbox : MonoBehaviour
 {
-    
+    public GameObject suicide;
     public bool hiti;
 
     public void OnTriggerEnter(Collider collision)
@@ -10,6 +11,8 @@ public class hitbox : MonoBehaviour
         if (collision.gameObject.CompareTag("Player"))
         {
             hiti = true;
+            suicide.SetActive(false);
+
         }
 
     }
