@@ -21,32 +21,10 @@ public class Dummy : MonoBehaviour
     }
 
 
-     public void OnTriggerEnter(Collider collision)
-    {
-        if(collision.CompareTag("Attack"))
-        {
-            Gethit();
-        }
-    }
+    
 
 
-     public void Gethit()
-    {
-        hit = Random.Range(-1,1);
-        rb.linearVelocity = new Vector3(player.K, player.Kup, rb.linearVelocity.z);
-
-        if(hit>=0)
-        {
-            moves.Play("Hitted");
-        }
-
-        if(hit<0)
-        {
-            moves.Play("Hitted2");
-        }
-        
-        
-    }
+   
     
 
     // Update is called once per frame

@@ -6,6 +6,7 @@ TagManager:
   tags:
   - Ground
   - Attack
+  - Enemy
   layers:
   - Default
   - TransparentFX
@@ -15,10 +16,10 @@ TagManager:
   - UI
   - TopPlayer
   - BottomPlayer
-  - 
-  - 
-  - 
-  - 
+  - GrabbedObject
+  - CharacterLayer
+  - Ground
+  - Post Process
   - 
   - 
   - 

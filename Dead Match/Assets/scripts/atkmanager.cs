@@ -3,83 +3,101 @@ using Unity.Collections;
 
 public class atkmanager : MonoBehaviour
 {
-   public bool atk;
-   public bool stunned;
-   private Animator moveset;
-   public Move movement;
-   public fight player;
-   public bool followup;
-   public bool cooldown;
-   public Flip flipped;
+    public bool atk;
+    public bool airAtk;
+    public bool stunned;
+    private Animator moveset;
+    public Rigidbody rb;
+    public Move movement;
+    public fight player;
+    public GameObject playerObject;
+    public bool followup;
+    public bool cooldown;
+    public Flip flipped;
+    public bool isBeingHit;
+    public bool canWalk = true;
+    public int chain;
+    public bool ableBodied;
 
 
-   public GameObject Lhitbox;//Light attack hitbox
-   public GameObject Hhitbox;//Heavy attack hitbox
-   public GameObject Chitbox;//Chain attack hitbox
-   public GameObject Shitbox;//Special attack hitbox
-   public GameObject Uhitbox;//Launcher hitbox
+  
+
 
     public void Start()
     {
-        if(player.Player2)
-        {
-            player.K = -player.K;
-        }
+        moveset = GetComponent<Animator>();
+        canWalk = true;
+        ableBodied = true;
+    
     }
-   public void atacking()
-   {
-    atk = true;
-    followup = true;
-   }
 
-   public void attackReset()
+    public void cantWalk()
+    {
+        canWalk = false;
+    }
+
+    public void canWalkAgain()
+    {
+        canWalk = true;
+    }
+
+    public void atacking()
+    {
+        atk = true;
+        player.moves.SetBool("Attacking", true);
+        followup = false;
+    }
+
+    public void airAttacking()
+    {
+        airAtk = true;
+    }
+
+    public void ResetAirAtk()
+    {
+        airAtk = false;
+    }
+
+    public void throwing()
+    {
+        player.grabbedEnemy.GetThrown(player, playerObject, 6f, 2f);
+        player.isGrabbing = false;
+        atk = false; 
+    }
+
+    // Code for dropping items 
+
+
+    public void Disable()
+    {
+        Debug.Log("got disabled");
+        ableBodied = false;
+    }
+
+    public void Enable()
+    {
+        Debug.Log("got enabled");
+        ableBodied = true;
+    }
+
+
+    public void dropping()
+    {
+        //player.grabbedEnemy.GetThrown(player, playerObject, 6f, 2f);
+        player.isGrabbing = false;
+        atk = false;
+   
+    }
+   
+
+    public void attackReset()
    {
     atk = false;
-    Lhitbox.SetActive(false);
-    Hhitbox.SetActive(false);
-    Chitbox.SetActive(false);
-    Shitbox.SetActive(false);
-    Uhitbox.SetActive(false);
+        player.moves.SetBool("Attacking", false);
 
-   }
+    }
    
-   void Latk()
-   {
-    Lhitbox.SetActive(true);
-
-    if(movement.isGrounded)
-            {
-            movement.rb.linearVelocity = new Vector3(player.K , movement.rb.linearVelocity.y, movement.rb.linearVelocity.z);
-            }
-   }
-
-   void Hatk()
-   {
-     Hhitbox.SetActive(true);
-     if(movement.isGrounded)
-            {
-            movement.rb.linearVelocity = new Vector3(player.K , movement.rb.linearVelocity.y, movement.rb.linearVelocity.z);
-            }
-   }
-
-   void Catk()
-   {
-    Chitbox.SetActive(true);
-    if(movement.isGrounded)
-            {
-            movement.rb.linearVelocity = new Vector3(player.K , movement.rb.linearVelocity.y, movement.rb.linearVelocity.z);
-            }
-   }
-
-   void Satk()
-   {
-    Shitbox.SetActive(true);
-   }
-
-   void Uatk()
-   {
-     Uhitbox.SetActive(true);
-   }
+   
 
     void attaked()
     {
@@ -92,19 +110,42 @@ public class atkmanager : MonoBehaviour
         stunned = false;
     }
 
+    void ChainStart()
+    {
+        
+       followup = true;
+        
+    }
+
     void ChainEnd()
     {
         followup =false;
+        player.chain = 0;
     }
 
     void CooldownStart()
     {
-        cooldown= true;
+        Debug.Log("no cooldown");
+        //cooldown= true;
     }
 
     void CooldownEnd()
     {
-        cooldown=false;
+        //cooldown=false;
     }
+
+    void slowdown()
+    {
+        //enemy.Slowdown();
+        Debug.Log("slowdown");
+
+    }
+
+    //void RestoreSpeed()
+    //{
+       // isBeingHit = false;
+       // moveset.speed = 1f;
+       // rb.useGravity = true;
+    //}
 
 }
