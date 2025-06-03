@@ -8,7 +8,7 @@ using static hitbox;
 
 public class fight : MonoBehaviour
 {
-    public GameObject suicide;
+  
     
     public Move movement;
     public atkmanager state;
@@ -21,12 +21,14 @@ public class fight : MonoBehaviour
     public int grabLayerIndex;
     public int baseLayerIndex;
 
+
     // Attacks damages
 
     private bool atk;  // true during damage frames
 
     // Health
     public float hp;  // hitpoints
+    public string FighterName;
     public float maxHP = 150;
     private float damage;  // the damage applied
     public float hitvar;
@@ -51,6 +53,7 @@ public class fight : MonoBehaviour
     public AudioClip HitClip;
     public AudioClip ShootClip;
     public AudioClip UppercutClip;
+    public AudioClip FinishingBlow;
 
 
     public void Start()
@@ -74,14 +77,14 @@ public class fight : MonoBehaviour
             hp = 0;
         }
 
-        if (hp <= 0)
-        {
-            moves.SetBool("Alive", false);
-            PlayerManager.Instance.UnregisterPlayer(transform);
-            StartCoroutine(WaitForDeath());
-        }
+        //if (hp <= 0)
+        //{
+        //    moves.SetBool("Alive", false);
+        //    PlayerManager.Instance.UnregisterPlayer(transform);
+        //    StartCoroutine(WaitForDeath());
+        //}
 
-        CheckRecover();
+        //CheckRecover();
         
         if (state.atk == true)
         {
@@ -94,10 +97,10 @@ public class fight : MonoBehaviour
             StartCoroutine(chainResetTimer());
         }
 
-        if(state.canWalk == false)
-        {
-            StartCoroutine(hitRecover());
-        }
+        //if(state.canWalk == false)
+        //{
+        //    StartCoroutine(hitRecover());
+        //}
 
 
         
@@ -114,12 +117,12 @@ public class fight : MonoBehaviour
         float z = Mathf.Abs(velocity.z) < 0.05f ? 0f : velocity.z; // Forward/back
 
         moves.SetFloat("HorizontalVelocity", x);
-        moves.SetFloat("VerticalVelocity", y);       // For jump/fall
+        moves.SetFloat("VerticalVelocity", y);       // Informa o animator sobre a velocidade do jogador
         moves.SetFloat("ForwardVelocity", z);
 
     }
 
-    public void GrabCheck()
+    public void GrabCheck()                 //não é utilizado 
     {
         if (isGrabbing == true)
         {
@@ -147,9 +150,13 @@ public class fight : MonoBehaviour
         }
     }
 
-    #region player input
+    #region player input        
 
-    public void LightAttackInput(InputAction.CallbackContext context)
+    //verifica se o jogador está no chão ou no ar para
+    //tocar o move correto
+
+    public void LightAttackInput(InputAction.CallbackContext context)                                   //verifica se o jogador está no chão ou no ar para
+                                                                                                        //tocar o move correto
     {
         if (context.started && state.atk == false && chain == 0 && state.ableBodied && state.airAtk == false)
         {
@@ -284,7 +291,8 @@ public class fight : MonoBehaviour
     #endregion
 
 
-    private void OnCollisionEnter(Collision collision)
+    #region atualmente nao utilizado
+    private void OnCollisionEnter(Collision collision)          // não é mais utilizado
     {
         if (collision.gameObject.CompareTag("Ground"))
         {
@@ -302,7 +310,7 @@ public class fight : MonoBehaviour
 
     }
 
-    public void Recover()
+    public void Recover()                                   //antes era utilizado para levantar o jogador caso ele ficasse preso no chão
     {
         Debug.Log("recovering now");
         //player is supposedly playing the recover animation at this moment
@@ -325,85 +333,118 @@ public class fight : MonoBehaviour
 
     IEnumerator chainResetTimer()
     {
+
+        //antes era usado para usar chain attacks, mas a versão atual do jogo não utiliza chain attacks
+        // por causa da personagem usada não possuir attacks em chain.
+        // a implementação tradicional de utilizar chains por meio de eventos tem um erro:
+        // o chain tem que ser frame-perfect, ou seja, o jogador tem que apertar o botão nos frames exatos da animação
+        //a solução ideal seria criar um input buffer , que significaria um sistema que "guarda" inputs por um tempo determinado
+        //antes de jogar eles fora.
+
+
         yield return new WaitForSeconds(0.5f);
         chain = 0;
         //state.canWalk = true;
     }
 
-    #region Getting hit
+    #endregion
 
+    #region Hit stun quando o jogador acerta alguem
 
     public void Slowdown()
     {
+        // ativada quando o jogador bate em alguem. Ela desativa a gravidade e desacelera a animação do jogador
         DisableAnimation();
         DisableGravity();
+        StartCoroutine(ResetAttacker());
+
     }
+
 
     public void DisableAnimation()
     {
+        //Ela desacelera a animação do jogador
         moves.speed = 0;
-        StartCoroutine(RestoreSpeedCoroutine());
+        
     }
 
     public void DisableGravity()
     {
-        //rb.constraints = RigidbodyConstraints.FreezePositionY;
-        rb.useGravity = false;
-        StartCoroutine(RestoreGravity());
+
+        //desativa uma variavel que afeta uma função da gravidade no script "Move"
+        movement.frozenState = true;
+     
     }
 
-    IEnumerator RestoreGravity()
+    IEnumerator ResetAttacker()
     {
-        yield return new WaitForSeconds(0.4f);
-        rb.useGravity = true;
-        //rb.constraints = RigidbodyConstraints.None;
-        //rb.constraints = RigidbodyConstraints.FreezePositionZ;
-        //rb.constraints = RigidbodyConstraints.FreezeRotation;
-
-    }
-    IEnumerator RestoreSpeedCoroutine()
-    {
+        // jogador atacante volta ao normal após 0.2 segundos
         yield return new WaitForSeconds(0.2f);
-        moves.speed = 1f;
-        
+        RestoreSpeed();
+        movement.frozenState = false;
 
     }
 
+
+
+    #endregion 
+
+    #region Hit stun quando o jogador leva dano
 
     public void GetSlowdown(hitbox collision, AudioClip hitSound, float damage, KnockbackType knockback , HitboxType hitboxType)
     {
 
-        //if (damage >= hp)
-        //{
-        //    Debug.Log("killing blow");
-        //    moves.SetTrigger("Hurt");
-        //}
+        //esta função ativa quando um jogador é atingido. Funciona de maneira um pouco diferente de Slowdown()
 
-
-
-        //for when the player is hit
-        if (knockback == KnockbackType.Upward)
+        if (damage >= hp)
         {
-            Debug.Log("why");
-            moves.SetTrigger("UpwardHurt");          
+            //ativa o slowmotion chamando a instance do Roundmanager.
+           Debug.Log("killing blow");
+            PlaySound(FinishingBlow);
+           RoundManager.Instance.SlowdownGame(1);
+           moves.SetTrigger("Hurt");
         }
 
-        if (knockback == KnockbackType.Forward)
+        if (damage < hp && !movement.isGrounded)
         {
-            moves.SetTrigger("ForwardHurt");        
-        }
-        if (knockback == KnockbackType.Spinning)
-        {
-            moves.SetTrigger("DiagonalHurt");
-        }
-        if (knockback == KnockbackType.Ground)
-        {
-            moves.SetTrigger("NormalHurt");
+            //a ideia aqui é transformar todo move normal do atacante em um move que dá knockback vertical automaticamente se o oponente estiver no ar.
+            //porém, há problemas com essa solução que ainda não sei resolver, não está muito consistente.
+           
+            if (knockback == KnockbackType.Ground)
+            {
+                Debug.Log("hititng a normal on  the air");
+                moves.SetTrigger("UpwardHurt");
+                collision.VerticalKnockback = 7;
+            }
+
         }
 
-        DisableAnimation();
-        DisableGravity();
 
+        if (damage < hp )
+        {
+            //Se o dano não for um finishing blow, ativa um trigger de animação de acordo com o tipo de animação da hitbox.
+
+            if (knockback == KnockbackType.Upward)
+            {
+                moves.SetTrigger("UpwardHurt");
+            }
+
+            if (knockback == KnockbackType.Forward)
+            {
+                moves.SetTrigger("ForwardHurt");
+            }
+            if (knockback == KnockbackType.Spinning)
+            {
+                moves.SetTrigger("DiagonalHurt");
+            }
+            if (knockback == KnockbackType.Ground)
+            {
+                moves.SetTrigger("NormalHurt");
+            }
+
+        }
+
+       
         gotHit = true;
         PlaySound(hitSound);
         hp -= damage;
@@ -415,27 +456,61 @@ public class fight : MonoBehaviour
     }
 
 
-
-
-
-    
-
-    IEnumerator RestoreSpeedCoroutine(hitbox collision)
+    private IEnumerator ShakeRoutine(int shakeCount, hitbox collision)
     {
-        // for when the player hits something 
-        yield return new WaitForSeconds(0.2f);
+        //cria o hit stun : o inimigo vibra no mesmo lugar para dar uma sensação de impacto na pessoa que levou o dano
+
+        DisableAnimation();
+        DisableGravity();
+        shaking = true;
+        Vector3 originalPosition = rb.position;
+        float shakeSpeed = 0.03f; 
+
+        for (int i = 0; i < shakeCount; i++)
+        {
+            // Vai para a direita
+            rb.MovePosition(originalPosition + Vector3.right * 0.03f);
+            yield return new WaitForSeconds(shakeSpeed);
+
+            // Vai para a esquerda
+            rb.MovePosition(originalPosition + Vector3.left * 0.03f);
+            yield return new WaitForSeconds(shakeSpeed);
+            shakeSpeed -= 0.02f;                                        // diminui a velocidade do shake a cada ciclo completo
+        }
+
+        
+        yield return new WaitForSeconds(0.2f);              //duração do hitstop
+
+
+        rb.position = originalPosition;
+        shaking = false;
+
+        //somente após o personagem terminar de vibrar , a gravidade e a velocidade das animações voltam ao normal
+        RestoreSpeed();
+        RestoreGravity(collision);
+
+       
+    }
+
+    public void RestoreSpeed()
+    {
+        //volta a velocidade normal da animação
         moves.speed = 1f;
-        rb.useGravity = true;
+    }
+
+
+    public void RestoreGravity(hitbox collision)
+    {
+        //Restora a gravidade, e apenas após isso, GetHit é chamado para ativar o knockback.
+        movement.frozenState = false;
         GetHit(collision);
     }
 
+
     IEnumerator ResetRecover()
     {
-        //this is being called every turn, fix it
-
-
-
-        // After the player has recovered and is back on their feet
+       
+        // Acho que não está sendo usado?
         Debug.Log("recovery reset");
         yield return new WaitForSeconds(30f);
         moves.ResetTrigger("Hurt");
@@ -447,12 +522,7 @@ public class fight : MonoBehaviour
 
     }
 
-    IEnumerator WaitForDeath()
-    {
-        // What happens when the player dies
-        yield return new WaitForSeconds(1f);
-        Destroy(gameObject);
-    }
+   
 
     IEnumerator hitRecover()
     {
@@ -463,103 +533,53 @@ public class fight : MonoBehaviour
     }
 
 
-    private IEnumerator ShakeRoutine(int shakeCount, hitbox collision)
-    {
-        shaking = true;
-        Vector3 originalPosition = rb.position;
-        float shakeSpeed = 0.03f; // Adjust for how fast the shake happens
-
-        for (int i = 0; i < shakeCount; i++)
-        {
-            // Move slightly right
-            rb.MovePosition(originalPosition + Vector3.right * 0.03f);
-            yield return new WaitForSeconds(shakeSpeed);
-
-            // Move slightly left
-            rb.MovePosition(originalPosition + Vector3.left * 0.03f);
-            yield return new WaitForSeconds(shakeSpeed);
-            shakeSpeed -= 0.02f;
-        }
-
-        // Return to the original position
-        //rigidbody2D.MovePosition(originalPosition);
-        rb.isKinematic = false;
-        shaking = false;
-        StartCoroutine(RestoreSpeedCoroutine(collision));
-    }
-
-
     public void GetHit(hitbox collision)
     {
 
-        GameObject enemyObject = collision.transform.root.gameObject;
+        GameObject enemyObject = collision.transform.root.gameObject;                                   //vai procurar a raiz do objeto que tem a hitbox
 
-        hitvar = Random.Range(-1, 1);
-
-        fight player = enemyObject.GetComponent<fight>();
-        hitbox hitBoxObject = collision.GetComponent<hitbox>();
+        fight player = enemyObject.GetComponent<fight>();                                               //pega o script Fight do objeto raiz 
+        hitbox hitBoxObject = collision.GetComponent<hitbox>();                                         //pega o script hitbox 
 
 
-
-        if (hitBoxObject != null)
-        {
-            Debug.Log("found reference to hitbox data");
-        }
-
-        Debug.Log(hitBoxObject.HorizontalKnockback);
 
         
-
-
         if (gotHit == true)
         {
+            //desativa a ação do outro jogador
             state.ableBodied = false;
             state.atk = false;
 
-            Debug.Log("got hit, recovering ");
+            //Recover();
 
-            Recover();
+            //Vector3 directionAwayFromAttacker = (transform.position - enemyObject.transform.position).normalized;
 
-            //moves.Play("Hitted");
-            //gotHit = false;
+            //Vector3 localKnockback = transform.InverseTransformDirection(directionAwayFromAttacker);
+
+            //Debug.Log($"Applied Knockback: {localKnockback}"); // Debugging
+
+            //Vector3 knockback =
+            // (transform.right * localKnockback.x * hitBoxObject.HorizontalKnockback) +       
+            // (Vector3.up * hitBoxObject.VerticalKnockback);
+
+            //rb.linearVelocity = Vector3.zero;
+
+            //rb.linearVelocity = knockback;
+
 
             Vector3 directionAwayFromAttacker = (transform.position - enemyObject.transform.position).normalized;
 
-            // Break it down into local directions relative to THIS character
-            Vector3 localKnockback = transform.InverseTransformDirection(directionAwayFromAttacker);
+            
+            float horizontalDir = Mathf.Sign(directionAwayFromAttacker.x);
 
-            Debug.Log($"Applied Knockback: {localKnockback}"); // Debugging
+            // cria a direção do knockback em um vetor
+            Vector3 knockback = new Vector3(horizontalDir * hitBoxObject.HorizontalKnockback, hitBoxObject.VerticalKnockback, 0f);
 
-            Vector3 knockback =
-             (transform.right * localKnockback.x * hitBoxObject.HorizontalKnockback) +       // Sideways
-             (transform.forward * localKnockback.z * hitBoxObject.ForwardKnockback) +        // Forward/back
-             (Vector3.up * hitBoxObject.VerticalKnockback);
-
+            // aplica o vetor
             rb.linearVelocity = Vector3.zero;
-
             rb.linearVelocity = knockback;
 
-
-            if (hitBoxObject.HorizontalKnockback < 2 && hitBoxObject.VerticalKnockback < 2)
-            {
-                {
-
-                    //moves.Play("Hurt");
-                    //gotHit = false;
-                }
-            }
-
-
-
-
-
-
-
         }
-
-
-
-
     }
 
 
@@ -570,4 +590,5 @@ public class fight : MonoBehaviour
 
 }
 
-#endregion 
+#endregion
+

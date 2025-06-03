@@ -5,8 +5,10 @@ public class ball : hitbox
 
     bool gotHit;
     public Rigidbody body;
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
+
+    new
+        // Start is called once before the first execution of Update after the MonoBehaviour is created
+        void Start()
     {
         body = GetComponent<Rigidbody>();
     }

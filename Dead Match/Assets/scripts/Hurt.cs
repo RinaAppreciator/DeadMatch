@@ -12,15 +12,7 @@ public class Hurt : MonoBehaviour
 // Start is called once before the first execution of Update after the MonoBehaviour is created
 void Start()
     {
-        //if (enemy != null)
-        //{
-        //    enemy = transform.root.gameObject.GetComponent<Enemy>();
-        //}
-
-        //if (player != null)
-        //{
-        //    player = transform.root.gameObject.GetComponent<fight>();
-        //}
+        //este script apenas serve para dar acesso as funções do outro player para a hitbox
     }
 
  

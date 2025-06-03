@@ -213,6 +213,17 @@
                 },
                 {
                     "name": "",
+                    "id": "3253defd-877c-4de9-bad5-231d02d92d6e",
+                    "path": "<XInputController>/leftStick",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Move",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
                     "id": "eb40bb66-4559-4dfa-9a2f-820438abb426",
                     "path": "<Keyboard>/w",
                     "interactions": "",

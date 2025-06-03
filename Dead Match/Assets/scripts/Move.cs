@@ -33,14 +33,21 @@ public class Move : MonoBehaviour
     [SerializeField] atkmanager state;
     [SerializeField] Animator moves;
 
-    public float gravityScale = 1f;
+    public CapsuleCollider collision;
+
+    public bool frozenState;
+
+    public bool onTheAirHurt;
+
+
+    public float gravityScale ;
     
 
 
     void Start()
     {
         rb = GetComponent<Rigidbody>();
-        //rb.useGravity = false;
+        rb.useGravity = false;
 
         //Code to switch characters
 
@@ -129,7 +136,7 @@ public class Move : MonoBehaviour
         if (state.atk || state.ableBodied == false)
         {
         
-              Debug.Log("player tried to move while he is attacking or disabled, what a fool");
+              
                return;
             
             
@@ -162,14 +169,48 @@ public class Move : MonoBehaviour
 
     void FixedUpdate()
     {
+        if (!isGrounded)
+        {
+            collision.enabled = false;
+        }
 
-        //if (!isGrounded)
+        if (isGrounded)
+        {
+            collision.enabled = true;
+        }
+
+
+        if (!isGrounded && !frozenState )
+        {
+            //ativa a gravidade custom
+            Debug.Log("normal jump");
+            //se o jogador estiver no ar, sem estar congelado ou machucado, aplicar a gravidade de maneira normal
+            rb.linearVelocity += Vector3.down * gravityScale * Time.fixedDeltaTime;
+        }
+
+
+        //if (!isGrounded && !frozenState && state.ableBodied)
         //{
-        //    rb.linearVelocity += Vector3.down * gravityScale * Time.fixedDeltaTime;
+        //    Debug.Log("normal jump");
+        //    //se o jogador estiver no ar, sem estar congelado ou machucado, aplicar a gravidade de maneira normal
+        //  rb.linearVelocity += Vector3.down * gravityScale * Time.fixedDeltaTime;
         //}
 
 
-        if (state.atk )
+        //if (!isGrounded && !frozenState && !state.ableBodied)
+        //{
+        //    Debug.Log("modified jump");
+        //    // se o jogador estiver no ar, sem estar congelado, mas machucado, puxe ele de maneira mais leve. Porém, pode afetar o knockback inicial, 
+        //    // então seria uma boa ideia somente aplicar isso após o knockback ser ativado. 
+        //    rb.linearVelocity += Vector3.down * gravityScale/1.5f * Time.fixedDeltaTime;
+        //}
+
+        
+
+        // Uma maneira interessante de implementar isso seria outros scripts diretamente afetar a gravity scale para aumentar ou diminuir a gravidade.
+
+
+        if (state.atk || frozenState)
         {
             rb.linearVelocity = Vector3.zero;
         }
@@ -179,7 +220,7 @@ public class Move : MonoBehaviour
         Vector3 currentVelocity = rb.linearVelocity;
 
         // Only apply input-based movement if canWalk is true
-        if (!state.atk && state.ableBodied)
+        if (!state.atk && state.ableBodied && isGrounded && !frozenState)
         {
             //Debug.Log("can walk in theory");
             Vector3 inputVelocity = new Vector3(moveDirection.x * moveSpeed, currentVelocity.y, 0);
@@ -188,8 +229,7 @@ public class Move : MonoBehaviour
         }
         else
         {
-            //Debug.Log("not able to walk");
-            // Keep Y velocity and external forces like knockback
+            //Se o jogador não poder se mover, deixe ele se mover na direção natural do knockback
             rb.linearVelocity = new Vector3(currentVelocity.x, currentVelocity.y, 0);
         }
 
