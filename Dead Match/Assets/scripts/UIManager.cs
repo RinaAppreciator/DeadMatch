@@ -8,6 +8,8 @@ public class UIManager : MonoBehaviour
 
     public static UIManager Instance;
 
+    public RoundManager roundManager;
+
     private fight playerScript;
 
 
@@ -17,11 +19,24 @@ public class UIManager : MonoBehaviour
 
     public Image healthBar1;
     public Image healthBar2;
+    public Image MeterBar1;
+    public Image MeterBar2;
     public fight player1;
     public fight player2;
     public TextMeshProUGUI name1;
     public TextMeshProUGUI name2;
-    
+
+    public GameObject subtitleBox;
+    public TextMeshProUGUI subtitles;
+
+    public int player1selectedcharacter;
+    public int player2selectedcharacter;
+
+    public GameObject pauseBox;
+
+    public bool isCutscene;
+
+ 
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
 
@@ -32,19 +47,21 @@ public class UIManager : MonoBehaviour
         Instance = this;
     }
 
-    public void SetPlayer(fight playerRef, int SlotNumber)
+    public void SetPlayer(fight playerRef, int SlotNumber, int selectedChar)
     {
         switch (SlotNumber)
         {
             case 1:
                 Debug.Log("registered the health of player 1 ");
                 player1 = playerRef;
-                SetName();
+                player1selectedcharacter = selectedChar;
+                //SetName();
                 break;
             case 2:
                 Debug.Log("registered the health of player 2 ");
                 player2 = playerRef;
-                SetName();
+                player2selectedcharacter = selectedChar;
+                //SetName();
                 break;
 
 
@@ -54,7 +71,9 @@ public class UIManager : MonoBehaviour
 
     public void Start()
     {
-       
+        subtitleBox.SetActive(false);
+        isCutscene = false;
+        pauseBox.SetActive(false);
     }
 
     public void SetName()
@@ -65,16 +84,19 @@ public class UIManager : MonoBehaviour
     void Update()
     {
         ChangeHealth();
-        //Debug.Log(healthBar.fillAmount);
+
+    
+
     }
 
     public void ChangeHealth()
     {
         
         healthBar1.fillAmount = player1.hp / player1.maxHP;
+        MeterBar1.fillAmount = player1.meter / player1.maxMeter;
 
         healthBar2.fillAmount = player2.hp / player2.maxHP;
-
+        MeterBar2.fillAmount = player2.meter / player2.maxMeter;
     }
 
     public IEnumerator FadeBlackScreen(bool fadeIn)
@@ -96,7 +118,35 @@ public class UIManager : MonoBehaviour
         blackScreen.color = new Color(color.r, color.g, color.b, endAlpha);
     }
 
+    public IEnumerator PlayCutscene(string firstLine, string secondLine, string thirdLine)
+    {
 
+        Debug.Log("playing cutscene");
+        isCutscene = true;
+        
+        subtitleBox.SetActive(true);
 
+        subtitles.text = firstLine;
+        yield return StartCoroutine(waitSubtitles());
+        subtitles.text = secondLine;
+        yield return StartCoroutine(waitSubtitles());
+        subtitles.text = thirdLine;
+        yield return StartCoroutine(waitSubtitles());
 
+        subtitleBox.SetActive(false);
+
+        isCutscene = false;
+        roundManager.endCutscene();
+    }
+
+   
+
+    public IEnumerator waitSubtitles()
+    {
+        Debug.Log("changing dialogue");
+        yield return new WaitForSeconds(2f);
+
+    }
+
+   
 }

@@ -5,63 +5,44 @@ using UnityEngine;
 public class PlayerSpawner : MonoBehaviour
 {
     public GameObject playerPrefab;
+    public GameObject edithPrefab;
+    public GameObject vanelsonPrefab;
+    public GameObject tetsuPrefab;
     private fight playerScript;
-    public int SlotNumber;
+    public int player1SelectedCharacter;
+    public int player2SelectedCharacter;
+    public GameObject spawnPoint1;
+    public GameObject spawnPoint2;
+    public GameObject UImanager;
+    public bool matchStarted;
+    public boundaryManager wallSetter;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
-        //GameObject player = Instantiate(playerPrefab, transform.position, Quaternion.identity);
-        ////player.transform.SetParent(transform);
-        //playerScript = player.gameObject.GetComponent<fight>();
-        
-        switch (SlotNumber)
-        {
-          case 1:
-                GameObject player = Instantiate(playerPrefab, transform.position, Quaternion.identity);
-                //player.transform.SetParent(transform);
-                playerScript = player.gameObject.GetComponent<fight>();
-
-                player.transform.localScale = new Vector3(1, 1, 1);
-
-                player.transform.Rotate(0, 90, 0);
-
-                print("player 1 rotated");
-
-                UIManager.Instance.SetPlayer(playerScript, SlotNumber);
-
-                StartCoroutine(playerRegister());
-                break;
-
-          case 2:
-               StartCoroutine(playerSpawn());
-              // print("player 2 rotated");
-              //player.transform.localScale = new Vector3(1, 1, -1);
-
-               break;
 
 
-        }
-
-        //player.transform.Rotate(0, 90, 0);
-
-
-        //UIManager.Instance.SetPlayer(playerScript, SlotNumber);
-
-
-        //StartCoroutine(playerRegister());
+        startGame();
+        UIManager.Instance.StartCoroutine(UIManager.Instance.FadeBlackScreen(false));
+       
 
 
     }
 
-    IEnumerator playerRegister()
+    public void startGame()
     {
-        yield return new WaitForSeconds(0.1f);
+        spawnPlayer1();
+        spawnPlayer2();
+    }
+
+    public void playerRegister(fight playerScript, int playerID)
+    {
+        //yield return new WaitForSeconds(0.1f);
 
 
         if (RoundManager.Instance != null)
         {
-            RoundManager.Instance.SetPlayer(playerScript, SlotNumber);
+            RoundManager.Instance.SetPlayer(playerScript, playerID);
         }
         else
         {
@@ -69,27 +50,170 @@ public class PlayerSpawner : MonoBehaviour
         }
     }
 
-    IEnumerator playerSpawn()
+    public void Update()
     {
-        yield return new WaitForSeconds(0.01f);
+    }
 
-        GameObject player = Instantiate(playerPrefab, transform.position, Quaternion.identity);
-        //player.transform.SetParent(transform);
-        playerScript = player.gameObject.GetComponent<fight>();
+    public void spawnPlayer1()
+    {
+       
+        switch (player1SelectedCharacter)
+        {
 
-        player.transform.Rotate(0, 90, 0);
+            case 0:
+                {
+                    GameObject currentPlayer = Instantiate(edithPrefab, spawnPoint1.transform.position, Quaternion.identity);
+                    currentPlayer.name = "Player #1";
 
-        print("player 2 rotated");
+                    //player.transform.SetParent(transform);
+                    playerScript = currentPlayer.gameObject.GetComponent<fight>();
 
-        UIManager.Instance.SetPlayer(playerScript, SlotNumber);
+                    currentPlayer.transform.localScale = new Vector3(1, 1, 1);
 
-        StartCoroutine(playerRegister());
+                    currentPlayer.transform.Rotate(0, 180, 0);
+
+                    print("player 1 rotated");
+
+                    UIManager.Instance.SetPlayer(playerScript, 1, player1SelectedCharacter);
+
+                    playerRegister(playerScript, 1);
+                    break;
+                }
+
+            case 1:
+                {
+                    GameObject currentPlayer = Instantiate(vanelsonPrefab, spawnPoint1.transform.position, Quaternion.identity);
+                    currentPlayer.name = "Player #1";
+                    //player.transform.SetParent(transform);
+                    playerScript = currentPlayer.gameObject.GetComponent<fight>();
+
+                    currentPlayer.transform.localScale = new Vector3(1, 1, 1);
+
+                    currentPlayer.transform.Rotate(0, 90, 0);
+
+                    print("player 1 rotated");
+
+                    UIManager.Instance.SetPlayer(playerScript, 1, player1SelectedCharacter);
+
+                    //StartCoroutine(playerRegister(1));
+                    break;
+                }
+
+            case 2:
+                {
+                    GameObject currentPlayer = Instantiate(tetsuPrefab, spawnPoint1.transform.position, Quaternion.identity);
+                    currentPlayer.name = "Player #1";
+                    //player.transform.SetParent(transform);
+                    playerScript = currentPlayer.gameObject.GetComponent<fight>();
+
+                    currentPlayer.transform.localScale = new Vector3(1, 1, -1);
+
+                    currentPlayer.transform.Rotate(0, -90, 0);
+
+                    print("player 1 rotated");
+
+                    UIManager.Instance.SetPlayer(playerScript, 1, player1SelectedCharacter);
+
+                    //StartCoroutine(playerRegister(1));
+                    break;
+                }
+        }
+
 
     }
 
-    // Update is called once per frame
-    void Update()
+    public void spawnPlayer2()
     {
         
+        switch (player2SelectedCharacter)
+        {
+
+            case 0:
+                {
+                    GameObject currentPlayer = Instantiate(edithPrefab, spawnPoint2.transform.position, Quaternion.identity);
+
+                    currentPlayer.name = "Player #2";
+                    //player.transform.SetParent(transform);
+                    playerScript = currentPlayer.gameObject.GetComponent<fight>();
+
+                    currentPlayer.transform.localScale = new Vector3(1, 1, -1);
+
+                    currentPlayer.transform.Rotate(0, 0, 0);
+
+                    
+
+                    UIManager.Instance.SetPlayer(playerScript, 2, player2SelectedCharacter);
+
+                    playerRegister(playerScript, 2);
+                    break;
+                }
+
+            case 1:
+                {
+                    GameObject currentPlayer = Instantiate(vanelsonPrefab, spawnPoint2.transform.position, Quaternion.identity);
+                    //player.transform.SetParent(transform);
+
+                    currentPlayer.name = "Player #2";
+                    playerScript = currentPlayer.gameObject.GetComponent<fight>();
+
+                    currentPlayer.transform.localScale = new Vector3(1, 1, -1);
+
+                    currentPlayer.transform.Rotate(0, 90, 0);
+
+                    print("player 1 rotated");
+
+                    UIManager.Instance.SetPlayer(playerScript, 2, player2SelectedCharacter);
+
+                    //StartCoroutine(playerRegister(2));
+                    break;
+                }
+
+            case 2:
+                {
+                    GameObject currentPlayer = Instantiate(tetsuPrefab, spawnPoint2.transform.position, Quaternion.identity);
+                    //player.transform.SetParent(transform);
+                    playerScript = currentPlayer.gameObject.GetComponent<fight>();
+
+                    currentPlayer.name = "Player #2";
+
+                    currentPlayer.transform.localScale = new Vector3(1, 1, 1);
+
+                    currentPlayer.transform.Rotate(0, -90, 0);
+
+                    print("player 1 rotated");
+
+                    UIManager.Instance.SetPlayer(playerScript, 2, player2SelectedCharacter);
+
+                    //StartCoroutine(playerRegister(2));
+                    break;
+                }
+        }
+
     }
+
+   
+    public void spawnPlayers()
+    {
+        matchStarted = true;
+        //spawnPlayer1();
+        //spawnPlayer2();
+        //StartCoroutine(player2SpawnDelay());
+        
+        
+        //spawnPlayer2();
+    }
+    
+  
+    public void setPlayer1Character(int player1SelectedCharacter)
+    {
+        this.player1SelectedCharacter = player1SelectedCharacter;
+
+    }
+
+    public void setPlayer2Character(int player2SelectedCharacter)
+    {
+        this.player2SelectedCharacter = player2SelectedCharacter;
+
+    }
+
 }

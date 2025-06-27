@@ -4,7 +4,7 @@ using UnityEngine;
 public class ground : MonoBehaviour
 {
 
-    public float impactThreshold = 10f;  // Minimum velocity to trigger lift
+    public float impactThreshold = 8;  // Minimum velocity to trigger lift
     public float liftForce;        // Upward force applied to objects
     public float shakeThreshold = 15f;   // Speed threshold for a heavy shake
     public float shakeMagnitude = 0.5f;
@@ -32,7 +32,7 @@ public class ground : MonoBehaviour
 
     public void screenShake(float amount, float time)
     {
-        cameraManager.Shake(amount, time);
+        cameraManager.Shake(amount, time, 1);
     }
 
     public void shakeGround(float amount, float time,  float force)
@@ -48,15 +48,11 @@ public class ground : MonoBehaviour
         // Apply upward force to all objects in contact with the ground
         foreach (Rigidbody rb in touchingObjects)
         {
-            if (rb.transform.root.gameObject.name == "Esther")
-            {
-                Debug.Log("player is here");
-            }
+       
 
-            else
-            {
-                rb.AddForce(Vector3.up * liftForce, ForceMode.Impulse);
-            }
+         
+            rb.AddForce(Vector3.up * liftForce, ForceMode.Impulse);
+            
 
         }
 
@@ -68,7 +64,7 @@ public class ground : MonoBehaviour
         if (rb != null && collision.contacts.Length > 0)
         {
             touchingObjects.Add(rb);
-            //CheckImpact(rb);
+            CheckImpact(rb);
         }
 
     }
@@ -92,7 +88,7 @@ public class ground : MonoBehaviour
     {
         float verticalSpeed = Mathf.Abs(rb.linearVelocity.y);
 
-        //Debug.Log(verticalSpeed);
+        Debug.Log(verticalSpeed);
 
     
         if (verticalSpeed >= impactThreshold)

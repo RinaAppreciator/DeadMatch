@@ -2561,6 +2561,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   atk: 0
+  atkTransition: 0
   airAtk: 0
   stunned: 0
   rb: {fileID: 5380350034002460233}
@@ -7222,13 +7223,13 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 7188862583964600383}
   serializedVersion: 2
-  m_LocalRotation: {x: -6.123234e-17, y: 1, z: 6.123234e-17, w: 0}
-  m_LocalPosition: {x: 0, y: 0.7888002, z: 0.052649144}
+  m_LocalRotation: {x: -0.04720732, y: 0.9988851, z: -0, w: 9.3132246e-10}
+  m_LocalPosition: {x: -0.017978163, y: 0.7850993, z: 0.052648336}
   m_LocalScale: {x: 0.1782578, y: 0.17825778, z: 0.1782578}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 6820766955135414596}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: -180, z: -5.412}
 --- !u!137 &1382841329228119191
 SkinnedMeshRenderer:
   m_ObjectHideFlags: 0
@@ -8574,8 +8575,16 @@ MonoBehaviour:
       m_Calls: []
     m_ActionId: 030787bc-2036-479f-9f76-13355e766e52
     m_ActionName: 'Player/Pause[/Keyboard/escape,/XInputControllerWindows/start]'
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: 1e11ae22-207a-4fe5-b98d-cfd428419f7d
+    m_ActionName: 'Player/Run[/Keyboard/shift,/XInputControllerWindows1/leftTrigger]'
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: 23c6581a-650c-46f9-8e1c-ccd9b22e21ee
+    m_ActionName: 'Player/Super[/Keyboard/u,/XInputControllerWindows1/leftShoulder]'
   m_NeverAutoSwitchControlSchemes: 0
-  m_DefaultControlScheme: Gamepad
+  m_DefaultControlScheme: Keyboard&Mouse
   m_DefaultActionMap: Player
   m_SplitScreenIndex: -1
   m_Camera: {fileID: 0}
@@ -8591,6 +8600,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b7bbe763a1deb2e499dda1e7340ce5f5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  meter: 100
+  hitboxes: {fileID: 5169066710010329037}
   movement: {fileID: 345951337920236564}
   state: {fileID: 1570305104519174338}
   isGrabbing: 0
@@ -8598,6 +8609,7 @@ MonoBehaviour:
   moves: {fileID: 5198691295168966254}
   grabLayerIndex: 0
   baseLayerIndex: 0
+  characterID: 0
   hp: 140
   FighterName: ESTHER
   maxHP: 100
@@ -8615,6 +8627,7 @@ MonoBehaviour:
   ShootClip: {fileID: 8300000, guid: 0269fa34d26afbf4cac282fb8cf0e49e, type: 3}
   UppercutClip: {fileID: 0}
   FinishingBlow: {fileID: 8300000, guid: a195608bbd587f84b817e80b64c37cca, type: 3}
+  blockClip: {fileID: 0}
 --- !u!114 &345951337920236564
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -8639,31 +8652,19 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 1024
   flipped: 0
+  canBlock: 0
   IshtarMesh: {fileID: 0}
-  MagicGirl: {fileID: 0}
-  Soldier: {fileID: 0}
-  bodyMesh: {fileID: 0}
-  MagicGirlMat:
-  - {fileID: 1453442067187828971, guid: 47d3e4fd01253294babb82ad65ae906b, type: 3}
-  - {fileID: 8442957057975247127, guid: 47d3e4fd01253294babb82ad65ae906b, type: 3}
-  - {fileID: 2829066664740315410, guid: 47d3e4fd01253294babb82ad65ae906b, type: 3}
-  - {fileID: -9196327937813977842, guid: 47d3e4fd01253294babb82ad65ae906b, type: 3}
-  - {fileID: -5439094097192024276, guid: 47d3e4fd01253294babb82ad65ae906b, type: 3}
-  - {fileID: 5046226728603767883, guid: 47d3e4fd01253294babb82ad65ae906b, type: 3}
-  SoldierMat:
-  - {fileID: 3862735554552073228, guid: f126e998805b35741be52b2c21c45f10, type: 3}
-  - {fileID: -1580535799172915004, guid: 3ccdafb65f4445642b1f7cbfa1ef0639, type: 3}
-  - {fileID: 3392243222815625112, guid: f126e998805b35741be52b2c21c45f10, type: 3}
-  - {fileID: -3721404542016793332, guid: f126e998805b35741be52b2c21c45f10, type: 3}
   playerBody: {fileID: 2547050381289126819}
   shadow: {fileID: 0}
   playerID: 1
+  scale: {x: 0, y: 0, z: 0}
   state: {fileID: 1570305104519174338}
   moves: {fileID: 5198691295168966254}
   collision: {fileID: 1837212447155218045}
   frozenState: 0
   onTheAirHurt: 0
   gravityScale: 14
+  characterID: 0
 --- !u!54 &5380350034002460233
 Rigidbody:
   m_ObjectHideFlags: 0

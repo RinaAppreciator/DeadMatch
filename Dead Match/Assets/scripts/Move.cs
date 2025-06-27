@@ -16,17 +16,16 @@ public class Move : MonoBehaviour
     public LayerMask groundLayer;
     public bool flipped;
 
+    public bool canBlock;
+
     public GameObject IshtarMesh;
-    public Mesh MagicGirl;
-    public Mesh Soldier;
-    public SkinnedMeshRenderer bodyMesh;
-    public Material[] MagicGirlMat;
-    public Material[] SoldierMat;
+    
     public Transform playerBody;
     public Transform shadow;
     public float playerID;
 
     private Vector2 movement;
+    public Vector3 scale;
 
     private Vector3 moveDirection;
     private Quaternion m_Rotation = Quaternion.identity;
@@ -41,6 +40,8 @@ public class Move : MonoBehaviour
 
 
     public float gravityScale ;
+
+    public int characterID;
     
 
 
@@ -68,35 +69,81 @@ public class Move : MonoBehaviour
 
     void Update()
     {
-    
 
-        //if (shadow.position.y != 0.25f)
-        //{
-        //Vector3 pos = shadow.position;
-        // pos.y = 0.25f;
-        //shadow.position = pos;
-        //}
+
+        checkFlipped();
+
+        if (characterID == 0)
+        {
+
+        }
+        if (playerBody.transform.localScale.z > 0)
+        {
+            flipped = false;
+            
+        }
+
+        if (playerBody.transform.localScale.z < 0)
+        {
+            
+            flipped = true;
+        }
+
 
         if (isGrounded)
         {
-            moves.SetBool("OnAir", false);
+            
+            moves.SetBool("IsGrounded", true);
             state.airAtk = false;
         }
 
 
-        if (!isGrounded)
+        if (isGrounded == false)
         {
-            moves.SetBool("OnAir", true);
+
+            
+            moves.SetBool("IsGrounded", false);
         }
 
         if (running == true)
         {
-            moves.SetBool("Running", true);
+            if ( !flipped)
+            {
+                if (moveDirection.x > 0 )
+                {
+                    moves.SetBool("WalkingForward", true);
+                }
+                else if (moveDirection.x < 0 )
+                {
+                    moves.SetBool("WalkingBackwards", true);
+                    canBlock = true;
+                }
+
+            }
+
+            else
+            {
+                if (moveDirection.x < 0 )
+                {
+                    moves.SetBool("WalkingForward", true);
+                }
+                else if (moveDirection.x > 0 )
+                {
+                    moves.SetBool("WalkingBackwards", true);
+                    canBlock = true;
+                }
+
+            }
+
+
         }
 
         if (running == false)
         {
-            moves.SetBool("Running", false);
+            //moves.SetBool("Running", false);
+            moves.SetBool("WalkingBackwards", false);
+            moves.SetBool("WalkingForward", false);
+            canBlock = false;
         }
 
 
@@ -110,7 +157,7 @@ public class Move : MonoBehaviour
     public void Movement()
     {
         // isso está funcionando bem
-        if (moveDirection != Vector3.zero && !state.atk && state.ableBodied)
+        if (moveDirection != Vector3.zero && !state.atk && state.ableBodied && isGrounded == true)
         {
             //playerBody.rotation = Quaternion.Slerp(playerBody.rotation, Quaternion.LookRotation(moveDirection), Time.deltaTime * 10f);
             running = true;
@@ -135,8 +182,9 @@ public class Move : MonoBehaviour
 
         if (state.atk || state.ableBodied == false)
         {
-        
-              
+
+            Debug.Log("attacking :" + state.atk + " able bodied " + state.ableBodied);
+              Debug.Log("can't move");
                return;
             
             
@@ -161,9 +209,39 @@ public class Move : MonoBehaviour
         {
             rb.linearVelocity = new Vector3(rb.linearVelocity.x, jumpForce, 0);
 
-            //moves.Play("Jump");
+            moves.SetTrigger("Jump");
             running = false;
             
+        }
+    }
+
+    public void RunInput(InputAction.CallbackContext context)
+    {
+        if (state.atk == true || !state.ableBodied)
+        {
+            return;
+        }
+
+        if (context.started && isGrounded && running == false )
+        {
+
+            if (characterID == 0)
+            {
+                if (!flipped)
+                {
+                    
+                    moves.SetTrigger("Dash");
+                    //rb.linearVelocity = new Vector3(25, rb.linearVelocity.y, 0);
+                   
+                }
+
+                else
+                {
+                   
+                    moves.SetTrigger("Dash");
+                    
+                }
+            }
         }
     }
 
@@ -171,39 +249,23 @@ public class Move : MonoBehaviour
     {
         if (!isGrounded)
         {
-            collision.enabled = false;
+            //collision.enabled = false;
         }
 
         if (isGrounded)
         {
-            collision.enabled = true;
+            //collision.enabled = true;
         }
 
 
         if (!isGrounded && !frozenState )
         {
             //ativa a gravidade custom
-            Debug.Log("normal jump");
+           
             //se o jogador estiver no ar, sem estar congelado ou machucado, aplicar a gravidade de maneira normal
             rb.linearVelocity += Vector3.down * gravityScale * Time.fixedDeltaTime;
         }
 
-
-        //if (!isGrounded && !frozenState && state.ableBodied)
-        //{
-        //    Debug.Log("normal jump");
-        //    //se o jogador estiver no ar, sem estar congelado ou machucado, aplicar a gravidade de maneira normal
-        //  rb.linearVelocity += Vector3.down * gravityScale * Time.fixedDeltaTime;
-        //}
-
-
-        //if (!isGrounded && !frozenState && !state.ableBodied)
-        //{
-        //    Debug.Log("modified jump");
-        //    // se o jogador estiver no ar, sem estar congelado, mas machucado, puxe ele de maneira mais leve. Porém, pode afetar o knockback inicial, 
-        //    // então seria uma boa ideia somente aplicar isso após o knockback ser ativado. 
-        //    rb.linearVelocity += Vector3.down * gravityScale/1.5f * Time.fixedDeltaTime;
-        //}
 
         
 
@@ -235,6 +297,44 @@ public class Move : MonoBehaviour
 
     }
 
+    public void checkFlipped()
+    {
+        switch(characterID)
+        {
+            case 0:
+                {
+                    if (playerBody.transform.localScale.z > 0)
+                    {
+                        flipped = false;
+
+                    }
+
+                    if (playerBody.transform.localScale.z < 0)
+                    {
+
+                        flipped = true;
+                    }
+                    break;
+                }
+
+            case 1:
+                {
+                    if (playerBody.transform.localScale.z > 0)
+                    {
+                        flipped = true;
+
+                    }
+
+                    if (playerBody.transform.localScale.z < 0)
+                    {
+
+                        flipped = false;
+                    }
+                    break;
+                }
+
+        }
+    }
 
 
 }

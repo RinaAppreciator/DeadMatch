@@ -4,6 +4,7 @@ using Unity.Collections;
 public class atkmanager : MonoBehaviour
 {
     public bool atk;
+    public bool atkTransition;
     public bool airAtk;
     public bool stunned;
     private Animator moveset;
@@ -31,9 +32,60 @@ public class atkmanager : MonoBehaviour
     
     }
 
-    public void cantWalk()
+    private void FixedUpdate()
     {
-        canWalk = false;
+        if(atkTransition == false)
+        {
+            moveset.SetBool("Attacking", false);
+        }
+
+        if(atkTransition == true)
+        { 
+            moveset.SetBool("Attacking", true);
+        }
+    }
+
+    public void Dash()
+    {
+        if (movement.flipped)
+        {
+            rb.AddForce(new Vector3(-50, 0, 0), ForceMode.Impulse);
+
+        }
+
+        else
+        {
+            rb.AddForce(new Vector3(50, 0, 0), ForceMode.Impulse);
+        }
+            
+    }
+
+    public void DashAttack()
+    {
+        if (movement.flipped)
+        {
+            rb.AddForce(new Vector3(-100, 0, 0), ForceMode.Impulse);
+        }
+
+        else
+        {
+            rb.AddForce(new Vector3(100, 0, 0), ForceMode.Impulse);
+        }
+    }
+
+    public void spawnProjectile()
+    {
+    
+        
+            player.spawnProjectile();
+        
+
+    }
+
+
+    public void finishAtk() 
+    {
+        atkTransition = true;
     }
 
     public void canWalkAgain()
@@ -94,6 +146,17 @@ public class atkmanager : MonoBehaviour
    {
     atk = false;
         player.moves.SetBool("Attacking", false);
+
+    }
+
+    public void Super()
+    {
+        atk = true;
+
+    }
+
+    public void SuperEnd()
+    {
 
     }
    
